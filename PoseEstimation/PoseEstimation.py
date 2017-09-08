@@ -13,7 +13,7 @@ def draw(img, corners, imgpts):
     img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255,0,0), 20)
     img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0,255,0), 20)
     img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 20)
-    img = cv2.drawChessboardCorners(img, (1, 1), corners[4], ret)
+    img = cv2.drawChessboardCorners(img, (1, 1), corners[0], ret)
     return img
 
 
@@ -42,20 +42,16 @@ for fname in glob.glob('/home/nape/Desktop/programs/chessboard_images/rright2.jp
         R_inv = np.linalg.inv(R)
         camrot = cv2.Rodrigues(R_inv)
         print "camrot is ", camrot[0]
-        #print "R_inv is"
-        #print R_inv
-        #print "tvec is"
-        #print tvecs
         mR = np.matrix(R_inv)
         mT = np.matrix(tvecs)
         cam_world_pos = -mR * mT
         print "Cam pose is"
         print cam_world_pos
-        #print cam_world_pos[2]
+       
 
-        print "0th corner is :", corners2[0]
+        print "0th corner is :", corners2[0] #changing the index in corners2[] and the corresponding 2D image co-ordinates of the corner in the next line gives 3D position of that chessboard corner
 
-        a = np.array([2088.3347168   , 1446.61755371])
+        a = np.array([2088.3347168   , 1446.61755371]) # 2D co-ordinates of 0th corner
         #a = np.array(corners2[0].T)
         b = np.array([1])
         concat = np.concatenate([a,b], 0)
@@ -64,6 +60,8 @@ for fname in glob.glob('/home/nape/Desktop/programs/chessboard_images/rright2.jp
         #print concat
         #print "transpose", concat.T
 
+	######### rough ##################
+    
         dir = mR * np.matrix(concat.T)
         #print "direction vector is ", dir
 
@@ -79,7 +77,7 @@ for fname in glob.glob('/home/nape/Desktop/programs/chessboard_images/rright2.jp
         Ycor = ((-cam_world_pos[2]/dir2[2])*dir2[1])+ cam_world_pos[1]
 
         #print "Ycor is ", Ycor
-
+	#########rough end ###########
 
         ###### Homography matrix #######
         R2 = np.zeros((3, 2), np.float32)
@@ -104,7 +102,7 @@ for fname in glob.glob('/home/nape/Desktop/programs/chessboard_images/rright2.jp
         #print "point3d is ", point3d
         ############ Homography end #################
 
-        ############ Working method ############
+        ############Final Working method ############
         mtx_inv = np.linalg.inv(mtx)
 
 
@@ -124,22 +122,18 @@ for fname in glob.glob('/home/nape/Desktop/programs/chessboard_images/rright2.jp
 
 
         P = np.matrix(R_inv) * np.matrix(temp)
-        #print "P point is ", P
+       
         P[0] = round(P[0])
         P[1] = round(P[1])
         P[2] = round(P[2])
 
-        #print "P is ", P
+        #print "The 3D position of 0th corner is ", P
 
         print "Xcor is :" , P[0]
         print "YCor is :", P[1]
         print "ZCor is :", P[2]
 
         print "success!!"
-
-
-
-
 
 
 
@@ -152,9 +146,6 @@ for fname in glob.glob('/home/nape/Desktop/programs/chessboard_images/rright2.jp
         k = cv2.waitKey(0) & 0xff
         if k == 's':
             cv2.imwrite(fname[:6]+'.png', img)
-
-
-
 
 
 cv2.destroyAllWindows()
